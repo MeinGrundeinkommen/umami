@@ -25,6 +25,9 @@ services:
     tty: true
     environment:
       NEXT_TELEMETRY_DISABLED: 1
+      DISABLE_TELEMETRY: 1
+      ENABLE_TEST_CONSOLE: 1
+      DEBUG: "umami:*"
       DATABASE_URL: postgresql://umami:umami@postgres-dev:5432/umami
       DATABASE_TYPE: postgresql
       APP_SECRET: replace-me-with-a-random-string
