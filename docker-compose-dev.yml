@@ -1,0 +1,50 @@
+# Start a simple dev environment with postgres in docker, and log into web server:
+#
+# `env UID=$(id -u) GID=$(id -g) docker compose -f docker-compose-dev.yml --progress=plain up -d && docker exec -ti umami-web-dev-1 bash`
+#
+# From there, install and run like you would locally:
+# 
+# pnpm install
+# npm run build
+# npm run start -- --port 4000
+#
+# Your local directory is mounted into the web container so you can code :)
+# This uses the same user id and group id as your host system user so file permissions appear to be the same.
+#
+# Here's how to shut it all down:
+# `env UID=$(id -u) GID=$(id -g) docker compose -f docker-compose-dev.yml --progress=plain down && docker image rm umami-web-dev`
+services:
+  web-dev:
+    user: "${UID}:${GID}"
+    build:
+      context: ./
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./:/app
+    ports:
+      - "4000:4000"
+    tty: true
+    environment:
+      NEXT_TELEMETRY_DISABLED: 1
+      DISABLE_TELEMETRY: 1
+      ENABLE_TEST_CONSOLE: 1
+      DEBUG: "umami:*"
+      DATABASE_URL: postgresql://umami:umami@postgres-dev:5432/umami
+      DATABASE_TYPE: postgresql
+      APP_SECRET: replace-me-with-a-random-string
+    depends_on:
+      - postgres-dev
+
+  postgres-dev:
+    
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: umami
+      POSTGRES_USER: umami
+      POSTGRES_PASSWORD: umami
+    volumes:
+      - umami_dev_pg_data:/var/lib/postgresql/data
+
+volumes:
+  umami_dev_pg_data:
+    driver: local
