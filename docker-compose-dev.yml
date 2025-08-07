@@ -1,6 +1,6 @@
 # Start a simple dev environment with postgres in docker, and log into web server:
 #
-# `docker compose -f docker-compose-dev.yml --progress=plain up -d && docker exec -ti umami-web-dev-1 bash`
+# `env UID=$(id -u) GID=$(id -g) docker compose -f docker-compose-dev.yml --progress=plain up -d && docker exec -ti umami-web-dev-1 bash`
 #
 # From there, install and run like you would locally:
 # 
@@ -9,12 +9,13 @@
 # npm run start -- --port 4000
 #
 # Your local directory is mounted into the web container so you can code :)
-# TODO: Files created from within the web container are created as user root - this can cause confusion :(
+# This uses the same user id and group id as your host system user so file permissions appear to be the same.
 #
 # Here's how to shut it all down:
-# `docker compose -f docker-compose-dev.yml --progress=plain down && docker image rm umami-web-dev`
+# `env UID=$(id -u) GID=$(id -g) docker compose -f docker-compose-dev.yml --progress=plain down && docker image rm umami-web-dev`
 services:
   web-dev:
+    user: "${UID}:${GID}"
     build:
       context: ./
       dockerfile: Dockerfile.dev
