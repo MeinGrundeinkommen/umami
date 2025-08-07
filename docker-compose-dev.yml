@@ -34,6 +34,7 @@ services:
       APP_SECRET: replace-me-with-a-random-string
     depends_on:
       - postgres-dev
+
   postgres-dev:
     
     image: postgres:15-alpine
